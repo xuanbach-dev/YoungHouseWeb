@@ -1,6 +1,17 @@
 {
+  "scripts": {
+    "dev": "concurrently \"npm run backend:dev\" \"npm run frontend:start\"",
+    "start": "concurrently \"npm run backend:start\" \"npm run frontend:start\"",
+    "backend:dev": "cd backend && npm run dev",
+    "backend:start": "cd backend && npm start",
+    "frontend:start": "cd frontend && npm start",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install"
+  },
   "dependencies": {
     "dotenv": "^17.2.1",
     "mssql": "^11.0.1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0"
   }
 }

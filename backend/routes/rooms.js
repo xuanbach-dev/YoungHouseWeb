@@ -53,6 +53,77 @@ router.get('/available/:branchId', async (req, res) => {
   }
 });
 
+// Get all room types (must be before /:id route)
+router.get('/types', async (req, res) => {
+  try {
+    const roomTypes = await Room.getAllRoomTypes();
+    
+    res.json({
+      success: true,
+      data: roomTypes,
+      message: 'Room types retrieved successfully'
+    });
+  } catch (error) {
+    console.error('Error fetching room types:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch room types',
+      error: error.message
+    });
+  }
+});
+
+// Advanced search rooms with filters
+router.get('/search/advanced', async (req, res) => {
+  try {
+    const {
+      branchId,
+      roomTypeId,
+      minPrice,
+      maxPrice,
+      status,
+      page = 1,
+      limit = 20
+    } = req.query;
+
+    const filters = {};
+    
+    if (branchId) filters.branchId = parseInt(branchId);
+    if (roomTypeId) filters.roomTypeId = parseInt(roomTypeId);
+    if (minPrice) filters.minPrice = parseFloat(minPrice);
+    if (maxPrice) filters.maxPrice = parseFloat(maxPrice);
+    if (status) filters.status = status;
+    
+    filters.page = parseInt(page);
+    filters.limit = parseInt(limit);
+
+    const [rooms, total] = await Promise.all([
+      Room.advancedSearch(filters),
+      Room.getAdvancedSearchCount(filters)
+    ]);
+    
+    res.json({
+      success: true,
+      data: {
+        rooms,
+        total,
+        page: filters.page,
+        limit: filters.limit,
+        totalPages: Math.ceil(total / filters.limit)
+      },
+      filters: filters,
+      message: 'Advanced room search completed successfully'
+    });
+  } catch (error) {
+    console.error('Error in advanced room search:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to perform advanced room search',
+      error: error.message
+    });
+  }
+});
+
 // Search rooms
 router.get('/search/:query', async (req, res) => {
   try {

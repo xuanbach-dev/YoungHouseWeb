@@ -1,80 +1,41 @@
-// User types
 export interface User {
   id: number;
   username: string;
   email: string;
-  bio?: string;
+  role: 'admin' | 'user';
+  roleId?: number;
+  roleName?: string;
+  fullName?: string;
   avatar?: string;
-  createdAt: string;
-  updatedAt?: string;
+  bio?: string;
+  created_at: string;
+  createdAt?: string; // Alternative naming
 }
 
-// Post types
 export interface Post {
   id: number;
   title: string;
   content: string;
-  authorId: number;
-  author: string;
-  tags: string[];
-  likes: number;
-  comments: number;
-  createdAt: string;
-  updatedAt: string;
+  author_id: number;
+  authorId?: number; // Alternative naming
+  created_at: string;
+  updated_at: string;
+  createdAt?: string; // Alternative naming
+  updatedAt?: string; // Alternative naming
+  author?: User;
+  likes?: number;
+  comments?: number;
+  tags?: string[];
 }
 
-// Room types
-export interface Room {
-  RoomID: number;
-  RoomNumber: string;
-  Status: 'Available' | 'Occupied' | 'Maintenance' | 'Reserved';
-  RoomDescription?: string;
-  BranchID: number;
-  BranchName: string;
-  Address: string;
-  City: string;
-  Phone?: string;
-  RoomTypeID: number;
-  TypeName: string;
-  Price: number;
-  TypeDescription?: string;
-  Media?: RoomMedia[];
-}
-
-export interface RoomMedia {
-  MediaID: number;
-  FilePath: string;
-  MediaType: string;
-  UploadedAt: string;
-}
-
-export interface Branch {
-  BranchID: number;
-  BranchName: string;
-  Address: string;
-  City: string;
-  Phone?: string;
-}
-
-export interface RoomType {
-  RoomTypeID: number;
-  TypeName: string;
-  Price: number;
-  Description?: string;
-}
-
-export interface RoomSearchFilters {
-  searchQuery: string;
-  branchId?: number;
-  status?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  page: number;
-  limit: number;
-}
-
-// Auth types
 export interface LoginCredentials {
+  username?: string;
+  email?: string;
+  password: string;
+}
+
+export interface RegisterData {
+  username: string;
   email: string;
   password: string;
 }
@@ -83,46 +44,11 @@ export interface RegisterCredentials {
   username: string;
   email: string;
   password: string;
+  fullName?: string;
+  roleId?: number;
+  confirmPassword?: string;
 }
 
-export interface AuthResponse {
-  message: string;
-  token: string;
-  user: User;
-}
-
-// API Response types
-export interface ApiResponse<T> {
-  data?: T;
-  message?: string;
-  error?: string;
-}
-
-export interface PaginationResponse<T> {
-  data: T[];
-  pagination: {
-    currentPage: number;
-    totalPages: number;
-    totalItems: number;
-    hasNext: boolean;
-    hasPrev: boolean;
-  };
-}
-
-// Form types
-export interface PostFormData {
-  title: string;
-  content: string;
-  tags: string[];
-}
-
-export interface UserProfileFormData {
-  username: string;
-  bio: string;
-  avatar: string;
-}
-
-// Context types
 export interface AuthContextType {
   user: User | null;
   token: string | null;
@@ -131,18 +57,100 @@ export interface AuthContextType {
   logout: () => void;
   isLoading: boolean;
   error: string | null;
+  isAuthenticated: boolean;
+  isAdmin: () => boolean;
+  isUser: () => boolean;
+  hasRole: (roleId: number) => boolean;
 }
 
-export interface PostsContextType {
-  posts: Post[];
-  currentPost: Post | null;
-  isLoading: boolean;
-  error: string | null;
-  fetchPosts: (page?: number, limit?: number) => Promise<void>;
-  fetchPostById: (id: number) => Promise<void>;
-  createPost: (data: PostFormData) => Promise<void>;
-  updatePost: (id: number, data: Partial<PostFormData>) => Promise<void>;
-  deletePost: (id: number) => Promise<void>;
-  likePost: (id: number) => Promise<void>;
-  searchPosts: (query: string) => Promise<void>;
+export interface BranchStatistics {
+  totalRooms: number;
+  availableRooms: number;
+  occupiedRooms: number;
+  reservedRooms: number;
+  maintenanceRooms: number;
+  totalRevenue: number;
+  monthlyRevenue: number;
+  occupancyRate: number;
+}
+
+export interface ViewingAppointment {
+  appointmentId?: number;
+  fullName: string;
+  email: string;
+  phone: string;
+  viewingDate: string;
+  viewingTime: string;
+  roomId: number;
+  note?: string;
+  status?: 'Pending' | 'Confirmed' | 'Completed' | 'Cancelled';
+  createdAt?: string;
+  // Additional fields from joins
+  roomNumber?: string;
+  typeName?: string;
+  price?: number;
+  branchName?: string;
+  address?: string;
+}
+
+export interface Room {
+  roomId: number;
+  RoomID?: number; // Alternative naming
+  roomNumber: string;
+  RoomNumber?: string; // Alternative naming
+  description?: string;
+  RoomDescription?: string; // Alternative naming
+  roomTypeId: number;
+  RoomTypeID?: number; // Alternative naming
+  branchId: number;
+  BranchID?: number; // Alternative naming
+  isAvailable: boolean;
+  Status?: string;
+  // From joins
+  typeName?: string;
+  TypeName?: string; // Alternative naming
+  price?: number;
+  Price?: number; // Alternative naming
+  typeDescription?: string;
+  TypeDescription?: string; // Alternative naming
+  branchName?: string;
+  BranchName?: string; // Alternative naming
+  address?: string;
+  Address?: string; // Alternative naming
+  City?: string;
+  Phone?: string;
+  serviceFee?: number;
+  ServiceFee?: number; // Alternative naming
+  electricityFee?: number;
+  ElectricityFee?: number; // Alternative naming
+  Media?: Array<{
+    FilePath: string;
+  }>;
+}
+
+export interface RoomSearchFilters {
+  search?: string;
+  branchId?: number;
+  roomTypeId?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  status?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface Branch {
+  branchId: number;
+  branchName: string;
+  address: string;
+  city: string;
+  phone: string;
+  description?: string;
+}
+
+export interface RoomType {
+  roomTypeId: number;
+  typeName: string;
+  price: number;
+  description?: string;
 }

@@ -27,7 +27,7 @@ app.use(cors({
   origin: ['http://localhost:3000', 'http://localhost:5000'],
   credentials: true,
   optionsSuccessStatus: 200,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
@@ -44,8 +44,6 @@ app.use('/uploads', (req, res, next) => {
 }, express.static('uploads'));
 
 // Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/users', require('./routes/users'));
 app.use('/api/posts', require('./routes/posts'));
 
 // New routes for rental management system
@@ -53,6 +51,7 @@ app.use('/api/branches', require('./routes/branches'));
 app.use('/api/rooms', require('./routes/rooms'));
 app.use('/api/customers', require('./routes/customers'));
 app.use('/api/bookings', require('./routes/bookings'));
+app.use('/api/viewing-appointments', require('./routes/viewingAppointments'));
 
 // Image processing routes
 app.use('/api/images', require('./routes/images'));
@@ -86,8 +85,6 @@ app.get('/', (req, res) => {
     description: 'Rental Management System with Social Features',
     endpoints: {
       health: '/api/health',
-      auth: '/api/auth',
-      users: '/api/users',
       posts: '/api/posts',
       branches: '/api/branches',
       rooms: '/api/rooms',
@@ -122,12 +119,15 @@ const startServer = async () => {
       throw new Error('Database connection failed');
     }
     
+
+    
     app.listen(PORT, () => {
       console.log(`🚀 Server is running on port ${PORT}`);
       console.log(`📱 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🌐 Client URL: ${process.env.CLIENT_URL || 'http://localhost:3000'}`);
       console.log(`💾 Database: ${process.env.DB_NAME || 'younghouse_db'}`);
       console.log(`🏠 API Documentation available at: http://localhost:${PORT}/`);
+
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error.message);

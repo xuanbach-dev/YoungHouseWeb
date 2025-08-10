@@ -1,18 +1,17 @@
 import React from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import { User, Settings, Calendar } from 'lucide-react';
 import './Profile.css';
 
 const Profile: React.FC = () => {
-  const { user } = useAuth();
-
-  if (!user) {
-    return (
-      <div className="profile-container">
-        <div className="error-message">Please log in to view your profile</div>
-      </div>
-    );
-  }
+  // Mock user data since auth is removed
+  const user = {
+    username: 'guest_user',
+    fullName: 'Guest User',
+    email: 'guest@example.com',
+    createdAt: new Date().toISOString(),
+    bio: 'Welcome to YoungHouse!',
+    avatar: null
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {

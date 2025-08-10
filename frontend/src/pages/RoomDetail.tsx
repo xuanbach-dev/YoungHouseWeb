@@ -7,8 +7,8 @@ import {
   Users, 
   Wifi, 
   AirVent, 
-  Tv, 
-  Car,
+  Fingerprint, 
+  Droplets,
   ChevronLeft,
   ChevronRight,
   X,
@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { roomsAPI } from '../services/api';
 import { Room } from '../types';
+import ViewingAppointmentForm from '../components/ViewingAppointmentForm';
 import './RoomDetail.css';
 
 const RoomDetail: React.FC = () => {
@@ -31,8 +32,7 @@ const RoomDetail: React.FC = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showImageModal, setShowImageModal] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [selectedCheckIn, setSelectedCheckIn] = useState('');
-  const [selectedCheckOut, setSelectedCheckOut] = useState('');
+  const [showViewingAppointmentForm, setShowViewingAppointmentForm] = useState(false);
   
   // Get room images based on current system logic
   const getRoomImages = (room: Room): string[] => {
@@ -69,6 +69,53 @@ const RoomDetail: React.FC = () => {
       for (let i = 1; i <= imageCount; i++) {
         images.push(`${baseUrl}/api/images/rooms/2/${roomType}/${i}?size=large`);
       }
+    } else if (room.BranchID === 4) {
+      // Young House 4: Type12 folder with branch4-{index}.jpg pattern (6 images)
+      const imageCount = 6;
+      
+      for (let i = 1; i <= imageCount; i++) {
+        images.push(`${baseUrl}/api/images/rooms/4/Type12/${i}?size=large`);
+      }
+    } else if (room.BranchID === 9) {
+      // Young House 9: Type10 folder with branch9-{index}.jpg/JPG pattern (9 images)
+      const imageCount = 9;
+      
+      for (let i = 1; i <= imageCount; i++) {
+        images.push(`${baseUrl}/api/images/rooms/9/Type10/${i}?size=large`);
+      }
+    } else if (room.BranchID === 10) {
+      // Young House 10: Type11 folder with branch10-{index}.jpg pattern (6 images)
+      const imageCount = 6;
+      
+      for (let i = 1; i <= imageCount; i++) {
+        images.push(`${baseUrl}/api/images/rooms/10/Type11/${i}?size=large`);
+      }
+    } else if (room.BranchID === 11) {
+      // Young House 11: Type8 folder with branch11-{index}.jpg pattern (7 images)
+      const imageCount = 7;
+      
+      for (let i = 1; i <= imageCount; i++) {
+        images.push(`${baseUrl}/api/images/rooms/11/Type8/${i}?size=large`);
+      }
+    } else if (room.BranchID === 12) {
+      // Young House 12: Type7 folder with branch12-{index}.jpg pattern (9 images)
+      const imageCount = 9;
+      
+      for (let i = 1; i <= imageCount; i++) {
+        images.push(`${baseUrl}/api/images/rooms/12/Type7/${i}?size=large`);
+      }
+    } else if (room.BranchID === 14) {
+      // Young House 14: Type13 folder with branch14-{index}.png pattern (8 images)
+      const imageCount = 8;
+      
+      for (let i = 1; i <= imageCount; i++) {
+        images.push(`${baseUrl}/api/images/rooms/14/Type13/${i}?size=large`);
+      }
+    } else {
+      // Fallback for unknown branches - try to use the generic API
+      console.warn(`Unknown BranchID: ${room.BranchID}, using fallback image logic`);
+      // Return a single placeholder or try to get a random image
+      images.push(`${baseUrl}/api/images/rooms/${room.BranchID}/random?size=large`);
     }
     
     return images;
@@ -121,47 +168,32 @@ const RoomDetail: React.FC = () => {
     }).format(price);
   };
 
-  const calculateDuration = () => {
-    if (!selectedCheckIn || !selectedCheckOut) return 0;
-    
-    const checkIn = new Date(selectedCheckIn);
-    const checkOut = new Date(selectedCheckOut);
-    const diffTime = Math.abs(checkOut.getTime() - checkIn.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-  };
-
-  const calculateTotal = () => {
-    const duration = calculateDuration();
-    const monthlyRate = room?.Price || 0;
-    const dailyRate = monthlyRate / 30; // Tính theo ngày dựa trên giá tháng
-    return duration * dailyRate;
-  };
-
-  const handleBooking = () => {
-    if (!selectedCheckIn || !selectedCheckOut) {
-      alert('Vui lòng chọn ngày check-in và check-out');
-      return;
+  // Get service fee based on branch (Young House 10 and 14 have special rate)
+  const getServiceFee = (room: Room): number => {
+    if (room.ServiceFee || room.serviceFee) {
+      return room.ServiceFee || room.serviceFee || 0;
     }
     
-    const duration = calculateDuration();
-    const total = calculateTotal();
-    
-    // Có thể navigate đến trang booking hoặc hiển thị modal xác nhận
-    const confirmMessage = `
-Xác nhận đặt phòng:
-- Phòng: ${room?.BranchName} - Phòng ${room?.RoomNumber}
-- Từ: ${selectedCheckIn}
-- Đến: ${selectedCheckOut}
-- Thời gian: ${duration} ngày
-- Tổng tiền: ${formatPrice(total)}
-
-Bạn có muốn tiếp tục?`;
-    
-    if (window.confirm(confirmMessage)) {
-      alert('Đặt phòng thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.');
+    // Young House 10 and Young House 14 have special service fee
+    if (room.BranchID === 10 || room.BranchID === 14) {
+      return 1800000;
     }
+    
+    // Default service fee for other branches
+    return 2300000;
   };
+
+  // Get electricity fee
+  const getElectricityFee = (room: Room): number => {
+    if (room.ElectricityFee || room.electricityFee) {
+      return room.ElectricityFee || room.electricityFee || 0;
+    }
+    
+    // Default electricity fee per kWh
+    return 3200;
+  };
+
+
 
   if (isLoading) {
     return (
@@ -273,7 +305,7 @@ Bạn có muốn tiếp tục?`;
             </div>
             
             <div className="room-price">
-              <span className="price">{formatPrice(room.Price)}</span>
+              <span className="price">{formatPrice(room.Price || room.price || 0)}</span>
               <span className="period">/tháng</span>
             </div>
           </div>
@@ -284,7 +316,7 @@ Bạn có muốn tiếp tục?`;
           </div>
 
           <div className="room-status">
-            <span className={`status-badge ${room.Status.toLowerCase()}`}>
+            <span className={`status-badge ${(room.Status || 'Available').toLowerCase()}`}>
               {room.Status === 'Available' ? 'Còn trống' : 
                room.Status === 'Occupied' ? 'Đã thuê' :
                room.Status === 'Reserved' ? 'Đã đặt' : 'Bảo trì'}
@@ -307,6 +339,12 @@ Bạn có muốn tiếp tục?`;
                 <strong>Chi tiết:</strong> {room.RoomDescription}
               </div>
             )}
+            <div className="detail-item">
+              <strong>Giá dịch vụ:</strong> {formatPrice(getServiceFee(room))}<span className="fee-period">/tháng</span>
+            </div>
+            <div className="detail-item">
+              <strong>Giá điện:</strong> {formatPrice(getElectricityFee(room))}<span className="fee-period">/số</span>
+            </div>
           </div>
 
           {/* Amenities */}
@@ -315,19 +353,19 @@ Bạn có muốn tiếp tục?`;
             <div className="amenities-grid">
               <div className="amenity-item">
                 <Wifi size={20} />
-                <span>WiFi miễn phí</span>
+                <span>WiFi từng phòng</span>
               </div>
               <div className="amenity-item">
                 <AirVent size={20} />
                 <span>Điều hòa</span>
               </div>
               <div className="amenity-item">
-                <Tv size={20} />
-                <span>TV</span>
+                <Fingerprint size={20} />
+                <span>Vân tay toà nhà</span>
               </div>
               <div className="amenity-item">
-                <Car size={20} />
-                <span>Chỗ đậu xe</span>
+                <Droplets size={20} />
+                <span>Nóng lạnh</span>
               </div>
             </div>
           </div>
@@ -338,77 +376,52 @@ Bạn có muốn tiếp tục?`;
             {room.Phone && (
               <div className="contact-item">
                 <Phone size={18} />
-                <span>{room.Phone}</span>
+                <span>0372858098</span>
               </div>
             )}
             <div className="contact-item">
               <Mail size={18} />
-              <span>info@younghouse.vn</span>
+              <span>bachqxhe180125@fpt.edu.vn</span>
             </div>
           </div>
         </div>
 
-        {/* Booking Panel */}
-        <div className="booking-panel">
-          <div className="booking-card">
-            <div className="booking-header">
-              <h3>Đặt phòng</h3>
-              <div className="booking-price">
-                {formatPrice(room.Price)}/tháng
-              </div>
+        {/* Viewing Appointment Section */}
+        <div className="viewing-appointment-section">
+          <div className="viewing-appointment-card">
+            <div className="viewing-appointment-header">
+              <h3>Đặt lịch xem phòng</h3>
+              <p>Tham quan phòng trước khi quyết định thuê</p>
             </div>
-
-            <div className="booking-form">
-              <div className="date-inputs">
-                <div className="input-group">
-                  <label>Ngày bắt đầu</label>
-                  <input
-                    type="date"
-                    value={selectedCheckIn}
-                    onChange={(e) => setSelectedCheckIn(e.target.value)}
-                    min={new Date().toISOString().split('T')[0]}
-                  />
+            
+            <div className="viewing-appointment-content">
+              <div className="appointment-benefits">
+                <div className="benefit-item">
+                  <Calendar size={20} />
+                  <span>Linh hoạt thời gian</span>
                 </div>
-                
-                <div className="input-group">
-                  <label>Ngày kết thúc</label>
-                  <input
-                    type="date"
-                    value={selectedCheckOut}
-                    onChange={(e) => setSelectedCheckOut(e.target.value)}
-                    min={selectedCheckIn}
-                  />
+                <div className="benefit-item">
+                  <Users size={20} />
+                  <span>Hỗ trợ tận tình</span>
+                </div>
+                <div className="benefit-item">
+                  <Star size={20} />
+                  <span>Miễn phí</span>
                 </div>
               </div>
-
-              {/* Booking Summary */}
-              {selectedCheckIn && selectedCheckOut && (
-                <div className="booking-summary">
-                  <div className="summary-row">
-                    <span>Thời gian thuê:</span>
-                    <span>{calculateDuration()} ngày</span>
-                  </div>
-                  <div className="summary-row">
-                    <span>Giá theo ngày:</span>
-                    <span>{formatPrice(room.Price / 30)}</span>
-                  </div>
-                  <div className="summary-row total">
-                    <span><strong>Tổng cộng:</strong></span>
-                    <span><strong>{formatPrice(calculateTotal())}</strong></span>
-                  </div>
-                </div>
-              )}
-
+              
               <button 
-                className="booking-button"
-                onClick={handleBooking}
-                disabled={room.Status !== 'Available'}
+                className="viewing-appointment-button"
+                onClick={() => setShowViewingAppointmentForm(true)}
               >
-                {room.Status === 'Available' ? 'Đặt phòng' : 'Phòng không khả dụng'}
+                Đặt lịch xem phòng
               </button>
-
-              <div className="booking-note">
-                <small>Bạn sẽ không bị tính phí cho đến khi đặt phòng được xác nhận</small>
+              
+              <div className="appointment-note">
+                <small>
+                  Đặt lịch hẹn để được tư vấn và tham quan phòng trọ miễn phí.
+                  Nhân viên sẽ liên hệ xác nhận trong vòng 24h.
+                </small>
               </div>
             </div>
           </div>
@@ -449,6 +462,14 @@ Bạn có muốn tiếp tục?`;
           </div>
         </div>
       )}
+
+      {/* Viewing Appointment Form Modal */}
+      <ViewingAppointmentForm
+        isOpen={showViewingAppointmentForm}
+        onClose={() => setShowViewingAppointmentForm(false)}
+        roomId={room?.RoomID}
+        room={room || undefined}
+      />
     </div>
   );
 };

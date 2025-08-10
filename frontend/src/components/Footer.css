@@ -27,14 +27,14 @@
 .footer-section h3 {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #f39c12;
+  color: #2d7dd2;
   margin-bottom: 0.5rem;
 }
 
 .footer-section h4 {
   font-size: 1.2rem;
   font-weight: 600;
-  border-bottom: 2px solid #f39c12;
+  border-bottom: 2px solid #2d7dd2;
   padding-bottom: 0.5rem;
   margin-bottom: 1.5rem;
 }
@@ -48,7 +48,7 @@
 /* Company Info */
 .footer-brand p {
   font-size: 1rem;
-  color: #f39c12;
+  color: #2d7dd2;
   margin-bottom: 1rem;
   font-weight: 500;
 }
@@ -79,7 +79,7 @@
 }
 
 .social-link:hover {
-  background: #f39c12;
+  background: #2d7dd2;
   color: white;
   transform: translateY(-2px);
 }
@@ -105,7 +105,7 @@
 }
 
 .footer-links a:hover {
-  color: #f39c12;
+  color: #2d7dd2;
   padding-left: 0.5rem;
 }
 
@@ -125,7 +125,7 @@
 }
 
 .contact-item svg {
-  color: #f39c12;
+  color: #2d7dd2;
   margin-top: 0.1rem;
   flex-shrink: 0;
 }
@@ -153,12 +153,12 @@
 
 .newsletter-input:focus {
   outline: none;
-  border-color: #f39c12;
+  border-color: #2d7dd2;
   background: #2c3e50;
 }
 
 .newsletter-button {
-  background: #f39c12;
+  background: #2d7dd2;
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -171,7 +171,7 @@
 }
 
 .newsletter-button:hover {
-  background: #e67e22;
+  background: #1a5fa0;
   transform: translateY(-1px);
 }
 
@@ -201,7 +201,7 @@
 }
 
 .footer-bottom-links a:hover {
-  color: #f39c12;
+  color: #2d7dd2;
 }
 
 /* Responsive */

@@ -32,6 +32,7 @@ router.get('/rooms/:branchId/:roomType/:index?', async (req, res) => {
       
       // Fallback to original image with correct path structure
       let originalPath;
+      const branchPath = `branch-${branchId}`;
       
       if (branchId === '2') {
         // Young House 2: Direct room type folders (Type3, Type4, Type5)
@@ -48,12 +49,42 @@ router.get('/rooms/:branchId/:roomType/:index?', async (req, res) => {
           fileName = `branch2-1-${index}.JPG`;
         }
         
-        originalPath = path.join(__dirname, '../uploads/rooms', `branch-${branchId}`, roomType, fileName);
+        originalPath = path.join(__dirname, '../uploads/rooms', branchPath, roomType, fileName);
+      } else if (branchId === '4') {
+        // Young House 4: database branchId=4, uses branch-4 folder with Type12
+        const fileName = `branch4-${index}.jpg`; // Type12 uses branch4-x pattern
+        originalPath = path.join(__dirname, '../uploads/rooms', branchPath, 'Type12', fileName);
+      } else if (branchId === '9') {
+        // Young House 9: database branchId=9, uses branch-9 folder with Type10
+        const extension = (index === '8' || index === '9') ? 'JPG' : 'jpg'; // branch9-8.JPG and branch9-9.JPG are uppercase
+        const fileName = `branch9-${index}.${extension}`;
+        originalPath = path.join(__dirname, '../uploads/rooms', branchPath, 'Type10', fileName);
+      } else if (branchId === '10') {
+        // Young House 10: database branchId=10, uses branch-10 folder with Type11
+        let fileName;
+        if (index === '2') {
+          fileName = `branch10_${index}.jpg`; // Special case: branch10_2.jpg (underscore instead of dash)
+        } else {
+          fileName = `branch10-${index}.jpg`; // Normal pattern: branch10-x.jpg
+        }
+        originalPath = path.join(__dirname, '../uploads/rooms', branchPath, 'Type11', fileName);
+      } else if (branchId === '11') {
+        // Young House 11: database branchId=11, uses branch-11 folder with Type8
+        const fileName = `branch11-${index}.jpg`; // Type8 uses branch11-x pattern
+        originalPath = path.join(__dirname, '../uploads/rooms', branchPath, 'Type8', fileName);
+      } else if (branchId === '12') {
+        // Young House 12: database branchId=12, uses branch-12 folder with Type7
+        const fileName = `branch12-${index}.jpg`; // Type7 uses branch12-x pattern
+        originalPath = path.join(__dirname, '../uploads/rooms', branchPath, 'Type7', fileName);
+      } else if (branchId === '14') {
+        // Young House 14: database branchId=14, uses branch-14 folder with Type13
+        const fileName = `branch14-${index}.png`; // Type13 uses branch14-x.png pattern
+        originalPath = path.join(__dirname, '../uploads/rooms', branchPath, 'Type13', fileName);
       } else {
         // Young House 1: Only Type1 folder
         const extension = index === '9' ? 'JPG' : 'jpg'; // branch1-9.JPG is uppercase
         const fileName = `branch1-${index}.${extension}`;
-        originalPath = path.join(__dirname, '../uploads/rooms', `branch-${branchId}`, 'Type1', fileName);
+        originalPath = path.join(__dirname, '../uploads/rooms', branchPath, 'Type1', fileName);
       }
       
       try {
@@ -89,6 +120,9 @@ router.get('/rooms/:branchId/random', async (req, res) => {
         { type: 'Type5', count: 7 }, // Type5: branch2-1-{index}.JPG
         { type: 'Type3', count: 4 }, // Type3: branch2-2-{index}.JPG
         { type: 'Type4', count: 2 }  // Type4: branch2-3-{index}.JPG
+      ],
+      '12': [
+        { type: 'Type7', count: 9 } // Young House 12: database branchId=12, Type7: branch12-1-{index}.jpg
       ]
     };
 

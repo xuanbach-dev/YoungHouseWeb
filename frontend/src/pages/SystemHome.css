@@ -62,7 +62,7 @@
 }
 
 .search-button {
-  background: #f39c12;
+  background: #2d7dd2;
   color: white;
   border: none;
   padding: 0.75rem 2rem;
@@ -74,7 +74,7 @@
 }
 
 .search-button:hover {
-  background: #e67e22;
+  background: #1a5fa0;
 }
 
 /* Main Content Layout */
@@ -158,8 +158,8 @@
 .filter-select:focus,
 .guest-input:focus {
   outline: none;
-  border-color: #f39c12;
-  box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.1);
+  border-color: #2d7dd2;
+  box-shadow: 0 0 0 3px rgba(45, 125, 210, 0.1);
 }
 
 .filter-select {
@@ -174,7 +174,7 @@
 }
 
 .filter-select:hover {
-  border-color: #f39c12;
+  border-color: #2d7dd2;
 }
 
 .filter-select option {
@@ -211,7 +211,7 @@
 .show-more {
   background: none;
   border: none;
-  color: #f39c12;
+  color: #2d7dd2;
   cursor: pointer;
   font-size: 0.9rem;
   margin-top: 0.5rem;
@@ -248,7 +248,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #f39c12;
+  background: #2d7dd2;
   cursor: pointer;
   border: 2px solid white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -258,7 +258,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #f39c12;
+  background: #2d7dd2;
   cursor: pointer;
   border: 2px solid white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -352,7 +352,7 @@
 
 .sort-btn.active,
 .sort-btn:hover {
-  background: #f39c12;
+  background: #2d7dd2;
   color: white;
 }
 
@@ -375,13 +375,13 @@
 
 .view-btn.active,
 .view-btn:hover {
-  background: #f39c12;
+  background: #2d7dd2;
   color: white;
 }
 
 .mobile-filter-btn {
   display: none;
-  background: #f39c12;
+  background: #2d7dd2;
   color: white;
   border: none;
   padding: 0.75rem 1rem;
@@ -446,7 +446,7 @@
   position: absolute;
   top: 0.75rem;
   left: 0.75rem;
-  background: #f39c12;
+  background: #2d7dd2;
   color: white;
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
@@ -461,7 +461,7 @@
 .room-price {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #f39c12;
+  color: #2d7dd2;
   margin-bottom: 0.75rem;
 }
 
@@ -484,7 +484,7 @@
 }
 
 .room-location svg {
-  color: #f39c12;
+  color: #2d7dd2;
   margin-top: 0.1rem;
   flex-shrink: 0;
 }
@@ -525,9 +525,9 @@
 
 .page-btn.active,
 .page-btn:hover {
-  background: #f39c12;
+  background: #2d7dd2;
   color: white;
-  border-color: #f39c12;
+  border-color: #2d7dd2;
 }
 
 .loading {
@@ -554,7 +554,7 @@
 }
 
 .clear-filters-btn {
-  background: #f39c12;
+  background: #2d7dd2;
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -566,7 +566,7 @@
 }
 
 .clear-filters-btn:hover {
-  background: #e67e22;
+  background: #1a5fa0;
 }
 
 /* Responsive Design */

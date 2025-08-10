@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Phone, Mail, Facebook, Instagram, Youtube } from 'lucide-react';
+import { MapPin, Phone, Mail, Facebook, MessageCircle, Youtube } from 'lucide-react';
 import './Footer.css';
 
 const Footer: React.FC = () => {
@@ -12,7 +12,7 @@ const Footer: React.FC = () => {
           <div className="footer-section">
             <div className="footer-brand">
               <h3>YoungHouse</h3>
-              <p>Nhà trọ tiện nghi dành cho cư dân trẻ</p>
+              <p>Hơn cả mái nhà - Đó là mái ấm</p>
             </div>
             <p className="footer-description">
               Khi nhà trọ cũng là nhà, YoungHouse tin rằng một không gian tiện nghi, 
@@ -20,11 +20,11 @@ const Footer: React.FC = () => {
               và thành công trong cuộc sống.
             </p>
             <div className="social-links">
-              <a href="#" className="social-link">
+              <a href="https://www.facebook.com/younghousehoalac" className="social-link">
                 <Facebook size={20} />
               </a>
               <a href="#" className="social-link">
-                <Instagram size={20} />
+                <MessageCircle size={20} />
               </a>
               <a href="#" className="social-link">
                 <Youtube size={20} />
@@ -38,8 +38,7 @@ const Footer: React.FC = () => {
             <ul className="footer-links">
               <li><Link to="/">Trang chủ</Link></li>
               <li><Link to="/system-home">Hệ thống nhà trọ</Link></li>
-              <li><Link to="/dashboard">Lối sống hiện đại</Link></li>
-              <li><Link to="/create-post">Sự kiện</Link></li>
+              <li><Link to="/younghouse">Về Young House</Link></li>
               <li><Link to="/profile">Liên hệ</Link></li>
             </ul>
           </div>
@@ -50,9 +49,9 @@ const Footer: React.FC = () => {
             <ul className="footer-links">
               <li><a href="#">Cho thuê phòng trọ</a></li>
               <li><a href="#">Tìm kiếm phòng trọ</a></li>
-              <li><a href="#">Dịch vụ dọn phòng</a></li>
-              <li><a href="#">Bảo trì kỹ thuật</a></li>
-              <li><a href="#">Tư vấn pháp lý</a></li>
+             
+              <li><a href="#">Hỗ trợ kỹ thuật: 083.8866.879 </a></li>
+              <li><a href="#">Tư vấn hợp đồng: 096.2888.797</a></li>
             </ul>
           </div>
 
@@ -66,11 +65,11 @@ const Footer: React.FC = () => {
               </div>
               <div className="contact-item">
                 <Phone size={16} />
-                <span>0123 456 789</span>
+                <span>0372858098</span>
               </div>
               <div className="contact-item">
                 <Mail size={16} />
-                <span>contact@younghouse.com</span>
+                <span>bachqxhe180125@fpt.edu.vn</span>
               </div>
             </div>
             
@@ -92,7 +91,7 @@ const Footer: React.FC = () => {
 
         <div className="footer-bottom">
           <div className="footer-bottom-content">
-            <p>&copy; 2024 YoungHouse. Tất cả quyền được bảo lưu.</p>
+            <p>&copy; 2025 YoungHouse. Designed by Xuan Bach.</p>
             <div className="footer-bottom-links">
               <a href="#">Chính sách bảo mật</a>
               <a href="#">Điều khoản sử dụng</a>

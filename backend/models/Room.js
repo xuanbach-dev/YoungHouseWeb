@@ -220,6 +220,129 @@ class Room {
     const result = await executeQuery(query, { branchId });
     return result.recordset;
   }
+
+  // Advanced search rooms with filters
+  static async advancedSearch(filters = {}) {
+    const { branchId, roomTypeId, minPrice, maxPrice, status, page = 1, limit = 20 } = filters;
+    const offset = (page - 1) * limit;
+    
+    let whereConditions = ['1=1'];
+    const params = { offset, limit };
+    
+    if (branchId) {
+      whereConditions.push('r.BranchID = @branchId');
+      params.branchId = branchId;
+    }
+    
+    if (roomTypeId) {
+      whereConditions.push('r.RoomTypeID = @roomTypeId');
+      params.roomTypeId = roomTypeId;
+    }
+    
+    if (minPrice !== undefined && minPrice !== null) {
+      whereConditions.push('rt.Price >= @minPrice');
+      params.minPrice = minPrice;
+    }
+    
+    if (maxPrice !== undefined && maxPrice !== null) {
+      whereConditions.push('rt.Price <= @maxPrice');
+      params.maxPrice = maxPrice;
+    }
+    
+    if (status) {
+      whereConditions.push('r.Status = @status');
+      params.status = status;
+    }
+    
+    const whereClause = whereConditions.join(' AND ');
+    
+    const query = `
+      SELECT 
+        r.RoomID,
+        r.RoomNumber,
+        r.Status,
+        r.Description as RoomDescription,
+        b.BranchID,
+        b.BranchName,
+        b.Address,
+        b.City,
+        rt.RoomTypeID,
+        rt.TypeName,
+        rt.Price,
+        rt.Description as TypeDescription
+      FROM Room r
+      INNER JOIN Branch b ON r.BranchID = b.BranchID
+      INNER JOIN RoomType rt ON r.RoomTypeID = rt.RoomTypeID
+      WHERE ${whereClause}
+      ORDER BY b.BranchName, rt.Price, r.RoomNumber
+      OFFSET @offset ROWS
+      FETCH NEXT @limit ROWS ONLY
+    `;
+    
+    const result = await executeQuery(query, params);
+    return result.recordset;
+  }
+
+  // Get count for advanced search
+  static async getAdvancedSearchCount(filters = {}) {
+    const { branchId, roomTypeId, minPrice, maxPrice, status } = filters;
+    
+    let whereConditions = ['1=1'];
+    const params = {};
+    
+    if (branchId) {
+      whereConditions.push('r.BranchID = @branchId');
+      params.branchId = branchId;
+    }
+    
+    if (roomTypeId) {
+      whereConditions.push('r.RoomTypeID = @roomTypeId');
+      params.roomTypeId = roomTypeId;
+    }
+    
+    if (minPrice !== undefined && minPrice !== null) {
+      whereConditions.push('rt.Price >= @minPrice');
+      params.minPrice = minPrice;
+    }
+    
+    if (maxPrice !== undefined && maxPrice !== null) {
+      whereConditions.push('rt.Price <= @maxPrice');
+      params.maxPrice = maxPrice;
+    }
+    
+    if (status) {
+      whereConditions.push('r.Status = @status');
+      params.status = status;
+    }
+    
+    const whereClause = whereConditions.join(' AND ');
+    
+    const query = `
+      SELECT COUNT(*) as total
+      FROM Room r
+      INNER JOIN Branch b ON r.BranchID = b.BranchID
+      INNER JOIN RoomType rt ON r.RoomTypeID = rt.RoomTypeID
+      WHERE ${whereClause}
+    `;
+    
+    const result = await executeQuery(query, params);
+    return result.recordset[0].total;
+  }
+
+  // Get all room types
+  static async getAllRoomTypes() {
+    const query = `
+      SELECT DISTINCT
+        rt.RoomTypeID,
+        rt.TypeName,
+        rt.Price,
+        rt.Description
+      FROM RoomType rt
+      ORDER BY rt.TypeName
+    `;
+    const result = await executeQuery(query);
+    return result.recordset;
+  }
 }
 
 module.exports = Room;

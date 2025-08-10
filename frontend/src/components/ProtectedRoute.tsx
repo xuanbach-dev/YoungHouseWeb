@@ -1,27 +1,22 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { Navigate, useLocation } from 'react-router-dom';
 
 interface ProtectedRouteProps {
-  children: React.ReactNode;
+  children: React.ReactElement;
 }
 
+const ADMIN_FLAG_KEY = 'yh_admin_auth';
+
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, isLoading } = useAuth();
+  const location = useLocation();
+  const isAuthed = typeof window !== 'undefined' && localStorage.getItem(ADMIN_FLAG_KEY) === 'true';
 
-  if (isLoading) {
-    return (
-      <div className="loading-container">
-        <div className="loading-spinner">Loading...</div>
-      </div>
-    );
+  if (!isAuthed) {
+    return <Navigate to="/admin-login" replace state={{ from: location.pathname }} />;
   }
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return <>{children}</>;
+  return children;
 };
 
 export default ProtectedRoute;
+

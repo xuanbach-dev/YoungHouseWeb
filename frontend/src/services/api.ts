@@ -10,55 +10,17 @@ export const api = axios.create({
   },
 });
 
-// Request interceptor to add auth token
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+
 
 // Response interceptor to handle errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
-    }
     return Promise.reject(error);
   }
 );
 
-// Auth API
-export const authAPI = {
-  login: (email: string, password: string) =>
-    api.post('/auth/login', { email, password }),
-  
-  register: (username: string, email: string, password: string) =>
-    api.post('/auth/register', { username, email, password }),
-  
-  getProfile: () => api.get('/auth/profile'),
-};
 
-// Users API
-export const usersAPI = {
-  getUsers: (page: number = 1, limit: number = 10) =>
-    api.get(`/users?page=${page}&limit=${limit}`),
-  
-  getUserById: (id: number) => api.get(`/users/${id}`),
-  
-  searchUsers: (query: string) => api.get(`/users/search/${query}`),
-  
-  updateProfile: (id: number, data: any) => api.put(`/users/${id}`, data),
-};
 
 // Posts API
 export const postsAPI = {
@@ -97,6 +59,26 @@ export const roomsAPI = {
     const params = branchId ? `?branchId=${branchId}` : '';
     return api.get(`/rooms/search/${encodeURIComponent(query)}${params}`);
   },
+
+  advancedSearchRooms: (filters: {
+    branchId?: number;
+    roomTypeId?: number;
+    minPrice?: number;
+    maxPrice?: number;
+    status?: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    const params = new URLSearchParams();
+    
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        params.append(key, value.toString());
+      }
+    });
+    
+    return api.get(`/rooms/search/advanced?${params.toString()}`);
+  },
   
   createRoom: (data: { branchId: number; roomTypeId: number; roomNumber: string; status?: string; description?: string }) =>
     api.post('/rooms', data),
@@ -108,6 +90,33 @@ export const roomsAPI = {
     api.patch(`/rooms/${id}/status`, { status }),
   
   deleteRoom: (id: number) => api.delete(`/rooms/${id}`),
+  
+  getRoomTypes: () => api.get('/rooms/types'),
+};
+
+// Branches API
+export const branchesAPI = {
+  getBranches: () => api.get('/branches'),
+  getBranchesWithRooms: () => api.get('/branches/with-rooms'),
+  getBranchById: (id: number) => api.get(`/branches/${id}`),
+  createBranch: (data: any) => api.post('/branches', data),
+  updateBranch: (id: number, data: any) => api.put(`/branches/${id}`, data),
+  deleteBranch: (id: number) => api.delete(`/branches/${id}`),
+  getAdminStatistics: () => api.get('/branches/admin/statistics'),
+};
+
+// Viewing Appointments API
+export const viewingAppointmentsAPI = {
+  getAll: (params?: any) => api.get('/viewing-appointments', { params }),
+  getById: (id: number) => api.get(`/viewing-appointments/${id}`),
+  create: (data: any) => api.post('/viewing-appointments', data),
+  update: (id: number, data: any) => api.put(`/viewing-appointments/${id}`, data),
+  updateStatus: (id: number, status: string) => api.patch(`/viewing-appointments/${id}/status`, { status }),
+  delete: (id: number) => api.delete(`/viewing-appointments/${id}`),
+  getByRoom: (roomId: number, params?: any) => api.get(`/viewing-appointments/room/${roomId}`, { params }),
+  checkAvailability: (data: any) => api.post('/viewing-appointments/check-availability', data),
+  getAvailableSlots: (roomId: number, date: string) => api.get(`/viewing-appointments/available-slots/${roomId}/${date}`),
+  getStatistics: () => api.get('/viewing-appointments/statistics'),
 };
 
 // Health check

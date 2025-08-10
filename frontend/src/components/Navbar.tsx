@@ -1,16 +1,21 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { Home, Users, PlusCircle, User, LogOut, LogIn, UserPlus } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Navbar.css';
 
 const Navbar: React.FC = () => {
-  const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [isAdminAuthed, setIsAdminAuthed] = useState<boolean>(false);
+
+  useEffect(() => {
+    const flag = localStorage.getItem('yh_admin_auth') === 'true';
+    setIsAdminAuthed(flag);
+  }, [location.pathname]);
 
   const handleLogout = () => {
-    logout();
-    navigate('/');
+    localStorage.removeItem('yh_admin_auth');
+    setIsAdminAuthed(false);
+    navigate('/admin-login');
   };
 
   return (
@@ -18,50 +23,40 @@ const Navbar: React.FC = () => {
       <div className="navbar-container">
         <Link to="/" className="navbar-brand">
           <div className="brand-logo">
-            <span className="brand-highlight">YoungHouse</span>
+            <img src="/logo.png" alt="YoungHouse" className="logo-image" />
           </div>
         </Link>
 
         <div className="navbar-menu">
           <Link to="/" className="navbar-item">
-            <span>Về YoungHouse</span>
+            <span>Trang chủ</span>
           </Link>
 
           <Link to="/system-home" className="navbar-item">
             <span>Hệ thống nhà trọ</span>
           </Link>
 
-          <Link to="/dashboard" className="navbar-item">
-            <span>Lối sống hiện đại</span>
-          </Link>
-
-          <Link to="/create-post" className="navbar-item">
-            <span>Sự kiện</span>
-          </Link>
+         
 
           <Link to="/profile" className="navbar-item">
             <span>Liên hệ</span>
           </Link>
-
-          {user ? (
-            <div className="navbar-user">
-              <Link to="/profile" className="navbar-item user-profile">
-                <User size={18} />
-                <span>{user.username}</span>
+          <div className="navbar-auth">
+            {isAdminAuthed ? (
+              <>
+                <Link to="/admin" className="navbar-item">
+                  <span>Admin</span>
+                </Link>
+                <button className="navbar-item" onClick={handleLogout}>
+                  <span>Đăng xuất</span>
+                </button>
+              </>
+            ) : (
+              <Link to="/admin-login" className="navbar-item">
+                <span>Đăng nhập Admin</span>
               </Link>
-
-              <button onClick={handleLogout} className="navbar-item logout-btn">
-                <LogOut size={18} />
-                <span>Đăng xuất</span>
-              </button>
-            </div>
-          ) : (
-            <div className="navbar-auth">
-              <Link to="/register" className="cta-button">
-                Tra Cứu Hóa Đơn
-              </Link>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </nav>

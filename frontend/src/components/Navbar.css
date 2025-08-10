@@ -40,13 +40,23 @@
 }
 
 .brand-highlight {
-  color: #f39c12;
+  color: #2d7dd2;
   font-size: 1.2rem;
   font-weight: bold;
 }
 
+.logo-image {
+  height: 80px;
+  width: auto;
+  transition: opacity 0.3s ease;
+}
+
+.logo-image:hover {
+  opacity: 0.8;
+}
+
 .navbar-brand:hover {
-  color: #f39c12;
+  color: #2d7dd2;
 }
 
 .navbar-menu {
@@ -72,7 +82,7 @@
 }
 
 .navbar-item:hover {
-  color: #f39c12;
+  color: #2d7dd2;
 }
 
 .navbar-user {
@@ -91,7 +101,7 @@
 }
 
 .cta-button {
-  background: #f39c12;
+  background: #2d7dd2;
   color: white;
   padding: 0.75rem 1.5rem;
   border-radius: 6px;
@@ -102,10 +112,10 @@
 }
 
 .cta-button:hover {
-  background: #e67e22;
+  background: #1a5fa0;
   color: white;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+  box-shadow: 0 4px 12px rgba(45, 125, 210, 0.3);
 }
 
 .user-profile {

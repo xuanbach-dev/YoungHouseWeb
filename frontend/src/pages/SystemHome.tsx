@@ -1,12 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { Search, MapPin, Calendar, Filter, Grid, List, ChevronDown } from 'lucide-react';
-import { roomsAPI } from '../services/api';
-import { Room, RoomSearchFilters } from '../types';
+import { roomsAPI, branchesAPI } from '../services/api';
+import { Room, Branch } from '../types';
 import './SystemHome.css';
+
+interface RoomSearchFilters {
+  search?: string;
+  branchId?: number;
+  roomTypeId?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  status?: string;
+  page?: number;
+  limit?: number;
+}
 
 const SystemHome: React.FC = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [filteredRooms, setFilteredRooms] = useState<Room[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [roomTypes, setRoomTypes] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -22,25 +35,60 @@ const SystemHome: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [checkInDate, setCheckInDate] = useState('');
   const [selectedBranches, setSelectedBranches] = useState<number[]>([]);
+  const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const [selectedRoomTypes, setSelectedRoomTypes] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState({ min: 0, max: 10000000 });
   const [statusFilter, setStatusFilter] = useState<string>('Available');
 
-    // Available branches and room types (could be fetched from API too)
-  const availableBranches = ['Tân Xã', 'Phú Hữu'];
-  const availableRoomTypes = [
-    'Căn hộ',
-    'Căn hộ 1 phòng ngủ',
-    'Căn hộ 1 phòng ngủ có giếng trời',
-    'Căn hộ 1 phòng ngủ có cửa sổ',
-    'Căn hộ 2 phòng ngủ',
-    'Căn hộ 3 phòng ngủ',
-    'Căn hộ có ban công',
-    'Mặt bằng kinh doanh',
-    'Giường ký túc xá',
-    'Duplex',
-    'Phòng giường đôi'
+  // Available areas and their corresponding branch IDs
+  const availableAreas = [
+    { name: 'Tân Xã', branchIds: [1,4] }, // Young House 1, Young House 2
+    { name: 'Phú Hữu', branchIds: [2,11, 12, 14] }, // Young House 4, Young House 9, Young House 10
+    { name: 'Bình Yên', branchIds: [9,10] } // Young House 11, Young House 12, Young House 14
   ];
+
+  // Function to get area name from branch ID
+  const getAreaFromBranchId = (branchId: number): string | null => {
+    const area = availableAreas.find(area => area.branchIds.includes(branchId));
+    return area ? area.name : null;
+  };
+  const availableRoomTypes = [
+    'Giường đôi',
+    'Giường đôi gác xép',
+    '2 giường đơn có ban công',
+    '2 giường đơn có giếng trời',
+    '1 giường đôi căn góc',
+    'Phòng 2 giường 1 khách',
+    'Giường gác xép'
+  ];
+
+  // Fetch branches from API
+  const fetchBranches = async () => {
+    try {
+      const response = await branchesAPI.getBranches();
+      if (response.data.success) {
+        setBranches(response.data.data);
+      }
+    } catch (err: any) {
+      console.error('Error fetching branches:', err);
+      // Continue with hardcoded areas if API fails
+    }
+  };
+
+  // Fetch room types from API
+  const fetchRoomTypes = async () => {
+    try {
+      const response = await roomsAPI.getRoomTypes();
+      if (response.data.success) {
+        const typeNames = response.data.data.map((type: any) => type.TypeName);
+        setRoomTypes(typeNames);
+      }
+    } catch (err: any) {
+      console.error('Error fetching room types:', err);
+      // Continue with hardcoded room types if API fails
+      setRoomTypes(availableRoomTypes);
+    }
+  };
 
   // Fetch rooms from API
   const fetchRooms = async () => {
@@ -100,23 +148,42 @@ const SystemHome: React.FC = () => {
   };
 
   useEffect(() => {
+    fetchBranches();
+    fetchRoomTypes();
     fetchRooms();
   }, [pagination.page, statusFilter]);
 
   useEffect(() => {
     filterRooms();
-  }, [selectedBranches, selectedRoomTypes, priceRange, rooms]);
+  }, [selectedBranches, selectedAreas, selectedRoomTypes, priceRange, rooms]);
 
   const filterRooms = () => {
     let filtered = rooms.filter(room => {
-      const matchesBranch = selectedBranches.length === 0 || selectedBranches.includes(room.BranchID);
-      const matchesRoomType = selectedRoomTypes.length === 0 || selectedRoomTypes.includes(room.TypeName);
-      const matchesPrice = room.Price >= priceRange.min && room.Price <= priceRange.max;
+      // Check if room matches selected areas
+      let matchesArea = true;
+      if (selectedAreas.length > 0) {
+        matchesArea = selectedAreas.some(areaName => {
+          const area = availableAreas.find(a => a.name === areaName);
+          return area && area.branchIds.includes(room.BranchID || room.branchId);
+        });
+      }
 
-      return matchesBranch && matchesRoomType && matchesPrice;
+      const matchesBranch = selectedBranches.length === 0 || selectedBranches.includes(room.BranchID || room.branchId);
+      const matchesRoomType = selectedRoomTypes.length === 0 || selectedRoomTypes.includes(room.TypeName || room.typeName || '');
+      const matchesPrice = (room.Price || room.price || 0) >= priceRange.min && (room.Price || room.price || 0) <= priceRange.max;
+
+      return matchesArea && matchesBranch && matchesRoomType && matchesPrice;
     });
 
     setFilteredRooms(filtered);
+  };
+
+  const handleAreaChange = (areaName: string) => {
+    setSelectedAreas(prev => 
+      prev.includes(areaName) 
+        ? prev.filter(area => area !== areaName)
+        : [...prev, areaName]
+    );
   };
 
   const handleBranchChange = (branchName: string) => {
@@ -140,6 +207,7 @@ const SystemHome: React.FC = () => {
 
   const clearFilters = () => {
     setSelectedBranches([]);
+    setSelectedAreas([]);
     setSelectedRoomTypes([]);
     setPriceRange({ min: 0, max: 10000000 });
     setSearchQuery('');
@@ -170,28 +238,28 @@ const SystemHome: React.FC = () => {
       } else {
         // Use optimized images API - this will correctly handle branch-specific folder structures
         const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-        const roomNumber = room.RoomNumber || '101';
+        const roomNumber = room.RoomNumber || room.roomNumber || '101';
         
         let apiPath = '';
         let imageIndex = 1;
         
-        if (room.BranchID === 1) {
+        if ((room.BranchID || room.branchId) === 1) {
           // Young House 1: Only Type1 folder - branch1-{index}.jpg/JPG (9 images)
           imageIndex = Math.floor(Math.random() * 9) + 1;
           apiPath = `${baseUrl}/api/images/rooms/1/Type1/${imageIndex}?size=${size}`;
-        } else if (room.BranchID === 2) {
+        } else if ((room.BranchID || room.branchId) === 2) {
           // Young House 2: Direct room type folders (Type3, Type4, Type5)
           // RoomTypeID 5 = Type5 (1 giường đôi căn góc), 3 = Type3 (2 giường đơn có ban công), 4 = Type4 (2 giường đơn có giếng trời)
           
-          if (room.RoomTypeID === 5) {
+          if ((room.RoomTypeID || room.roomTypeId) === 5) {
             // RoomTypeID 5: "1 giường đôi căn góc" → Type5/branch2-1-{index}.JPG (7 images)
             imageIndex = Math.floor(Math.random() * 7) + 1;
             apiPath = `${baseUrl}/api/images/rooms/2/Type5/${imageIndex}?size=${size}`;
-          } else if (room.RoomTypeID === 3) {
+          } else if ((room.RoomTypeID || room.roomTypeId) === 3) {
             // RoomTypeID 3: "2 giường đơn có ban công" → Type3/branch2-2-{index}.JPG (4 images)
             imageIndex = Math.floor(Math.random() * 4) + 1;
             apiPath = `${baseUrl}/api/images/rooms/2/Type3/${imageIndex}?size=${size}`;
-          } else if (room.RoomTypeID === 4) {
+          } else if ((room.RoomTypeID || room.roomTypeId) === 4) {
             // RoomTypeID 4: "2 giường đơn có giếng trời" → Type4/branch2-3-{index}.JPG (2 images)
             imageIndex = Math.floor(Math.random() * 2) + 1;
             apiPath = `${baseUrl}/api/images/rooms/2/Type4/${imageIndex}?size=${size}`;
@@ -200,19 +268,79 @@ const SystemHome: React.FC = () => {
             imageIndex = Math.floor(Math.random() * 7) + 1;
             apiPath = `${baseUrl}/api/images/rooms/2/Type5/${imageIndex}?size=${size}`;
           }
+        } else if ((room.BranchID || room.branchId) === 4) {
+          // Young House 4: Type12 folder with branch4-{index}.jpg pattern (6 images)
+          if ((room.RoomTypeID || room.roomTypeId) === 12) {
+            imageIndex = Math.floor(Math.random() * 6) + 1;
+            apiPath = `${baseUrl}/api/images/rooms/4/Type12/${imageIndex}?size=${size}`;
+          } else {
+            // Default to Type12 for other Young House 4 room types
+            imageIndex = Math.floor(Math.random() * 6) + 1;
+            apiPath = `${baseUrl}/api/images/rooms/4/Type12/${imageIndex}?size=${size}`;
+          }
+        } else if ((room.BranchID || room.branchId) === 9) {
+          // Young House 9: Type10 folder with branch9-{index}.jpg/JPG pattern (9 images)
+          if ((room.RoomTypeID || room.roomTypeId) === 10) {
+            imageIndex = Math.floor(Math.random() * 9) + 1;
+            apiPath = `${baseUrl}/api/images/rooms/9/Type10/${imageIndex}?size=${size}`;
+          } else {
+            // Default to Type10 for other Young House 9 room types
+            imageIndex = Math.floor(Math.random() * 9) + 1;
+            apiPath = `${baseUrl}/api/images/rooms/9/Type10/${imageIndex}?size=${size}`;
+          }
+        } else if ((room.BranchID || room.branchId) === 10) {
+          // Young House 10: Type11 folder with branch10-{index}.jpg pattern (6 images)
+          if ((room.RoomTypeID || room.roomTypeId) === 11) {
+            imageIndex = Math.floor(Math.random() * 6) + 1;
+            apiPath = `${baseUrl}/api/images/rooms/10/Type11/${imageIndex}?size=${size}`;
+          } else {
+            // Default to Type11 for other Young House 10 room types
+            imageIndex = Math.floor(Math.random() * 6) + 1;
+            apiPath = `${baseUrl}/api/images/rooms/10/Type11/${imageIndex}?size=${size}`;
+          }
+        } else if ((room.BranchID || room.branchId) === 11) {
+          // Young House 11: Type8 folder with branch11-{index}.jpg pattern (7 images)
+          if ((room.RoomTypeID || room.roomTypeId) === 8) {
+            imageIndex = Math.floor(Math.random() * 7) + 1;
+            apiPath = `${baseUrl}/api/images/rooms/11/Type8/${imageIndex}?size=${size}`;
+          } else {
+            // Default to Type8 for other Young House 11 room types
+            imageIndex = Math.floor(Math.random() * 7) + 1;
+            apiPath = `${baseUrl}/api/images/rooms/11/Type8/${imageIndex}?size=${size}`;
+          }
+        } else if ((room.BranchID || room.branchId) === 12) {
+          // Young House 12: Type7 folder with branch12-{index}.jpg pattern (9 images)
+          if ((room.RoomTypeID || room.roomTypeId) === 7) {
+            imageIndex = Math.floor(Math.random() * 9) + 1;
+            apiPath = `${baseUrl}/api/images/rooms/12/Type7/${imageIndex}?size=${size}`;
+          } else {
+            // Default to Type7 for other Young House 12 room types
+            imageIndex = Math.floor(Math.random() * 9) + 1;
+            apiPath = `${baseUrl}/api/images/rooms/12/Type7/${imageIndex}?size=${size}`;
+          }
+        } else if ((room.BranchID || room.branchId) === 14) {
+          // Young House 14: Type13 folder with branch14-{index}.png pattern (8 images)
+          if ((room.RoomTypeID || room.roomTypeId) === 13) {
+            imageIndex = Math.floor(Math.random() * 8) + 1;
+            apiPath = `${baseUrl}/api/images/rooms/14/Type13/${imageIndex}?size=${size}`;
+          } else {
+            // Default to Type13 for other Young House 14 room types
+            imageIndex = Math.floor(Math.random() * 8) + 1;
+            apiPath = `${baseUrl}/api/images/rooms/14/Type13/${imageIndex}?size=${size}`;
+          }
         } else {
           // Default fallback
           apiPath = `${baseUrl}/api/images/rooms/1/Type1/1?size=${size}`;
         }
         
-        if (room.BranchID === 2) {
-          console.log(`🔍 BRANCH 2 DEBUG: TypeName="${room.TypeName}", RoomTypeID=${room.RoomTypeID}, Match Result: ${
-            room.RoomTypeID === 5 ? 'Type1→101' :
-            room.RoomTypeID === 3 ? 'Type2→201' :
-            room.RoomTypeID === 4 ? 'Type3→301' : 'default→101'
+        if ((room.BranchID || room.branchId) === 2) {
+          console.log(`🔍 BRANCH 2 DEBUG: TypeName="${room.TypeName || room.typeName}", RoomTypeID=${room.RoomTypeID || room.roomTypeId}, Match Result: ${
+            (room.RoomTypeID || room.roomTypeId) === 5 ? 'Type1→101' :
+            (room.RoomTypeID || room.roomTypeId) === 3 ? 'Type2→201' :
+            (room.RoomTypeID || room.roomTypeId) === 4 ? 'Type3→301' : 'default→101'
           }`);
         }
-        console.log(`🖼️ BRANCH ${room.BranchID} ROOM: ${roomNumber}, TYPE: "${room.TypeName}" → IMAGE: ${apiPath}`);
+        console.log(`🖼️ BRANCH ${room.BranchID || room.branchId} ROOM: ${roomNumber}, TYPE: "${room.TypeName || room.typeName}" → IMAGE: ${apiPath}`);
         return apiPath;
       }
     } catch (error) {
@@ -272,18 +400,18 @@ const SystemHome: React.FC = () => {
             <div className="filter-section">
               <h4>Lọc</h4>
               
-              {/* Location Filter */}
+              {/* Area Filter */}
               <div className="filter-subsection">
                 <h5>Khu vực</h5>
                 <div className="checkbox-group">
-                  {availableBranches.map(branch => (
-                    <label key={branch} className="checkbox-item">
+                  {availableAreas.map(area => (
+                    <label key={area.name} className="checkbox-item">
                       <input
                         type="checkbox"
-                        checked={selectedBranches.includes(branch === 'Tân Xã' ? 1 : 2)}
-                        onChange={() => handleBranchChange(branch)}
+                        checked={selectedAreas.includes(area.name)}
+                        onChange={() => handleAreaChange(area.name)}
                       />
-                      <span>{branch}</span>
+                      <span>{area.name}</span>
                     </label>
                   ))}
                 </div>
@@ -304,7 +432,7 @@ const SystemHome: React.FC = () => {
                   className="filter-select"
                 >
                   <option value="">Tất cả loại phòng</option>
-                  {availableRoomTypes.map(roomType => (
+                  {roomTypes.map(roomType => (
                     <option key={roomType} value={roomType}>
                       {roomType}
                     </option>
@@ -417,14 +545,14 @@ const SystemHome: React.FC = () => {
               <div className={`rooms-grid ${viewMode}`}>
                 {filteredRooms.map(room => (
                   <div 
-                    key={room.RoomID} 
+                    key={room.RoomID || room.roomId} 
                     className="room-card"
                     onClick={(e) => {
                       // Sử dụng window.open để mở trong tab mới nếu Ctrl được giữ
                       if (e.ctrlKey || e.metaKey) {
-                        window.open(`/rooms/${room.RoomID}`, '_blank');
+                        window.open(`/rooms/${room.RoomID || room.roomId}`, '_blank');
                       } else {
-                        window.location.href = `/rooms/${room.RoomID}`;
+                        window.location.href = `/rooms/${room.RoomID || room.roomId}`;
                       }
                     }}
                     style={{ cursor: 'pointer' }}
@@ -432,7 +560,7 @@ const SystemHome: React.FC = () => {
                     <div className="room-image">
                       <img 
                         src={getImagePath(room, viewMode === 'grid' ? 'medium' : 'large')} 
-                        alt={`${room.BranchName} - Phòng ${room.RoomNumber}`}
+                        alt={`${room.BranchName || room.branchName} - Phòng ${room.RoomNumber || room.roomNumber}`}
                         loading="lazy"
                         onLoad={(e) => {
                           // Image loaded successfully
@@ -456,8 +584,8 @@ const SystemHome: React.FC = () => {
                             parentElement.innerHTML = `
                               <div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666;font-size:0.9rem;text-align:center;">
                                 <div>
-                                  <div>Phòng ${room.RoomNumber}</div>
-                                  <div style="font-size:0.8rem;margin-top:4px;">(${room.BranchName})</div>
+                                  <div>Phòng ${room.RoomNumber || room.roomNumber}</div>
+                                  <div style="font-size:0.8rem;margin-top:4px;">(${room.BranchName || room.branchName})</div>
                                 </div>
                               </div>
                             `;
@@ -472,31 +600,31 @@ const SystemHome: React.FC = () => {
                         }}
                       />
                       <div className="availability-badge">
-                        {room.Status === 'Available' ? 'Còn trống' : 
-                         room.Status === 'Occupied' ? 'Đã thuê' :
-                         room.Status === 'Reserved' ? 'Đã đặt' : 'Bảo trì'}
+                        {(room.Status || 'Available') === 'Available' ? 'Còn trống' : 
+                         (room.Status || 'Available') === 'Occupied' ? 'Đã thuê' :
+                         (room.Status || 'Available') === 'Reserved' ? 'Đã đặt' : 'Bảo trì'}
                       </div>
                     </div>
                     
                     <div className="room-content">
                       <div className="room-price">
-                        {formatPrice(room.Price)}/tháng
+                        {formatPrice(room.Price || room.price || 0)}/tháng
                       </div>
                       
-                      <h3 className="room-name">{room.BranchName} - Phòng {room.RoomNumber}</h3>
+                      <h3 className="room-name">{room.BranchName || room.branchName} - Phòng {room.RoomNumber || room.roomNumber}</h3>
                       
                       <div className="room-location">
                         <MapPin size={14} />
-                        <span>{room.Address}, {room.City}</span>
+                        <span>{room.Address || room.address}, {room.City || 'Hà Nội'}</span>
                       </div>
                       
                       <div className="room-amenities">
-                        <span className="amenity-tag">{room.TypeName}</span>
-                        {room.RoomDescription && (
-                          <span className="amenity-tag">{room.RoomDescription}</span>
+                        <span className="amenity-tag">{room.TypeName || room.typeName}</span>
+                        {(room.RoomDescription || room.description) && (
+                          <span className="amenity-tag">{room.RoomDescription || room.description}</span>
                         )}
-                        {room.TypeDescription && (
-                          <span className="amenity-tag">{room.TypeDescription}</span>
+                        {(room.TypeDescription || room.typeDescription) && (
+                          <span className="amenity-tag">{room.TypeDescription || room.typeDescription}</span>
                         )}
                       </div>
                     </div>

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { usersAPI } from '../services/api';
 import { User } from '../types';
-import { Users as UsersIcon, Search, Calendar } from 'lucide-react';
+import { Users as UsersIcon, Search, Calendar, Trash2, Shield, ShieldCheck } from 'lucide-react';
 import './Users.css';
 
 const Users: React.FC = () => {
@@ -10,21 +9,62 @@ const Users: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [roles, setRoles] = useState<any[]>([]);
+  
+  // Mock users data since auth system is removed
+  const mockUsers: User[] = [
+    {
+      id: 1,
+      username: 'admin',
+      email: 'admin@younghouse.com',
+      fullName: 'Administrator',
+      role: 'admin',
+      roleId: 1,
+      roleName: 'Admin',
+      created_at: '2024-01-01T00:00:00Z',
+      bio: 'System Administrator'
+    },
+    {
+      id: 2,
+      username: 'guest',
+      email: 'guest@younghouse.com',
+      fullName: 'Guest User',
+      role: 'user',
+      roleId: 2,
+      roleName: 'User',
+      created_at: '2024-01-15T00:00:00Z',
+      bio: 'Welcome guest!'
+    }
+  ];
 
   useEffect(() => {
     fetchUsers();
+    fetchRoles();
   }, []);
 
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
-      const response = await usersAPI.getUsers();
-      setUsers(response.data.users);
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setUsers(mockUsers);
     } catch (err: any) {
       setError('Failed to fetch users');
       console.error('Error fetching users:', err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchRoles = async () => {
+    try {
+      // Mock roles data
+      setRoles([
+        { id: 1, name: 'Admin', description: 'Administrator' },
+        { id: 2, name: 'User', description: 'Regular User' }
+      ]);
+    } catch (err: any) {
+      console.error('Error fetching roles:', err);
     }
   };
 
@@ -36,8 +76,13 @@ const Users: React.FC = () => {
 
     try {
       setIsSearching(true);
-      const response = await usersAPI.searchUsers(searchQuery.trim());
-      setUsers(response.data.users);
+      // Filter mock users by search query
+      const filtered = mockUsers.filter(user => 
+        user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        user.fullName?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setUsers(filtered);
     } catch (err: any) {
       console.error('Error searching users:', err);
       setError('Failed to search users');
@@ -60,6 +105,40 @@ const Users: React.FC = () => {
     });
   };
 
+  const handleRoleChange = async (userId: number, newRoleId: number) => {
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 300));
+      setUsers(users.map(user => 
+        user.id === userId 
+          ? { 
+              ...user, 
+              roleId: newRoleId, 
+              roleName: roles.find(r => r.id === newRoleId)?.name || user.roleName || 'User' 
+            }
+          : user
+      ));
+    } catch (err: any) {
+      console.error('Error updating user role:', err);
+      setError('Failed to update user role');
+    }
+  };
+
+  const handleDeleteUser = async (userId: number) => {
+    if (!window.confirm('Are you sure you want to delete this user?')) {
+      return;
+    }
+
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 300));
+      setUsers(users.filter(user => user.id !== userId));
+    } catch (err: any) {
+      console.error('Error deleting user:', err);
+      setError('Failed to delete user');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="users-container">
@@ -74,8 +153,8 @@ const Users: React.FC = () => {
         <div className="header-content">
           <UsersIcon size={28} className="header-icon" />
           <div>
-            <h1>Community Members</h1>
-            <p>Connect with young entrepreneurs and innovators in our community</p>
+            <h1>Quản lý người dùng</h1>
+            <p>Quản lý người dùng và phân quyền trong hệ thống</p>
           </div>
         </div>
 
@@ -154,29 +233,55 @@ const Users: React.FC = () => {
 
                 <div className="user-info">
                   <h3 className="user-name">{user.username}</h3>
-                  
-                  {user.bio && (
-                    <p className="user-bio">{user.bio}</p>
+                  {user.fullName && (
+                    <p className="user-full-name">{user.fullName}</p>
                   )}
+                  <p className="user-email">{user.email}</p>
                   
                   <div className="user-meta">
+                    <div className="user-role">
+                      {(user.roleId || (user.role === 'admin' ? 1 : 2)) === 1 ? (
+                        <ShieldCheck size={14} color="#10b981" />
+                      ) : (
+                        <Shield size={14} color="#6b7280" />
+                      )}
+                      <span className={`role-badge role-${user.roleId || (user.role === 'admin' ? 1 : 2)}`}>
+                        {user.roleName || (user.role === 'admin' ? 'Admin' : 'User')}
+                      </span>
+                    </div>
                     <div className="joined-date">
                       <Calendar size={14} />
-                      <span>Joined {formatDate(user.createdAt)}</span>
+                      <span>Tham gia {formatDate(user.createdAt || user.created_at)}</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="user-actions">
-                  <button 
-                    className="view-profile-btn"
-                    onClick={() => {
-                      // TODO: Implement user profile view
-                      alert('User profile view coming soon!');
-                    }}
-                  >
-                    View Profile
-                  </button>
+                  <div className="role-selector">
+                    <label htmlFor={`role-${user.id}`}>Vai trò:</label>
+                    <select
+                      id={`role-${user.id}`}
+                      value={user.roleId || (user.role === 'admin' ? 1 : 2)}
+                      onChange={(e) => handleRoleChange(user.id, parseInt(e.target.value))}
+                      disabled={user.id === 1} // Disable for admin user
+                    >
+                      {roles.map(role => (
+                        <option key={role.id} value={role.id}>
+                          {role.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {user.id !== 1 && ( // Don't allow deleting admin user
+                    <button 
+                      className="delete-user-btn"
+                      onClick={() => handleDeleteUser(user.id)}
+                      title="Xóa người dùng"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { postsAPI } from '../services/api';
-import { useAuth } from '../contexts/AuthContext';
 import { Post } from '../types';
 import { Calendar, User, Heart, MessageCircle, Tag, ArrowLeft } from 'lucide-react';
 import './PostDetail.css';
 
 const PostDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
   const [post, setPost] = useState<Post | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,12 +32,12 @@ const PostDetail: React.FC = () => {
   };
 
   const handleLikePost = async () => {
-    if (!user || !post || isLiking) return;
+    if (!post || isLiking) return;
 
     try {
       setIsLiking(true);
       await postsAPI.likePost(post.id);
-      setPost({ ...post, likes: post.likes + 1 });
+      setPost({ ...post, likes: (post.likes || 0) + 1 });
     } catch (err: any) {
       console.error('Error liking post:', err);
       alert('Failed to like post. Please try again.');
@@ -97,29 +95,29 @@ const PostDetail: React.FC = () => {
             <div className="author-info">
               <User size={20} />
               <div className="author-details">
-                <span className="author-name">{post.author}</span>
-                <span className="post-date">{formatDate(post.createdAt)}</span>
+                <span className="author-name">{post.author?.username || 'Unknown'}</span>
+                <span className="post-date">{formatDate(post.createdAt || post.created_at)}</span>
               </div>
             </div>
             
             <div className="post-stats">
               <div className="stat">
                 <Heart size={18} />
-                <span>{post.likes}</span>
+                <span>{post.likes || 0}</span>
               </div>
               
               <div className="stat">
                 <MessageCircle size={18} />
-                <span>{post.comments}</span>
+                <span>{post.comments || 0}</span>
               </div>
             </div>
           </div>
 
-          {post.tags.length > 0 && (
+          {post.tags && post.tags.length > 0 && (
             <div className="post-tags">
               <Tag size={16} />
               <div className="tags-list">
-                {post.tags.map((tag, index) => (
+                {post.tags.map((tag: string, index: number) => (
                   <span key={index} className="tag">
                     {tag}
                   </span>
@@ -137,7 +135,7 @@ const PostDetail: React.FC = () => {
 
         <footer className="post-footer">
           <div className="post-actions">
-            {user ? (
+            {true ? ( // Always show like button since no auth
               <button
                 onClick={handleLikePost}
                 className={`like-btn ${isLiking ? 'liking' : ''}`}
@@ -154,16 +152,16 @@ const PostDetail: React.FC = () => {
             )}
 
             <div className="share-info">
-              <small>Published on {formatDate(post.createdAt)}</small>
-              {post.updatedAt !== post.createdAt && (
-                <small>Updated on {formatDate(post.updatedAt)}</small>
+              <small>Published on {formatDate(post.createdAt || post.created_at)}</small>
+              {(post.updatedAt || post.updated_at) !== (post.createdAt || post.created_at) && (
+                <small>Updated on {formatDate(post.updatedAt || post.updated_at)}</small>
               )}
             </div>
           </div>
 
-          {user?.id === post.authorId && (
+          {false && ( // Hide edit controls since no auth system
             <div className="author-actions">
-              <Link to={`/edit-post/${post.id}`} className="edit-post-btn">
+              <Link to={`/edit-post/${post?.id}`} className="edit-post-btn">
                 Edit Post
               </Link>
             </div>
@@ -172,7 +170,7 @@ const PostDetail: React.FC = () => {
       </article>
 
       <div className="comments-section">
-        <h3>Comments ({post.comments})</h3>
+        <h3>Comments ({post.comments || 0})</h3>
         <div className="comments-placeholder">
           <p>Comments functionality coming soon!</p>
           <small>In the meantime, you can like posts and share your thoughts by creating your own posts.</small>

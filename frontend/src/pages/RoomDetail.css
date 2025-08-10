@@ -360,103 +360,7 @@
     margin-bottom: 12px;
   }
   
-  /* Booking Panel */
-  .booking-panel {
-    position: sticky;
-    top: 20px;
-  }
-  
-  .booking-card {
-    background: white;
-    padding: 24px;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e0e0e0;
-  }
-  
-  .booking-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-  }
-  
-  .booking-header h3 {
-    font-size: 20px;
-    font-weight: 600;
-    color: #333;
-    margin: 0;
-  }
-  
-  .booking-price {
-    font-size: 24px;
-    font-weight: 700;
-    color: #007bff;
-  }
-  
-  .booking-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  .date-inputs {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  
-  .input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  
-  .input-group label {
-    font-size: 14px;
-    font-weight: 500;
-    color: #333;
-  }
-  
-  .input-group input {
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 16px;
-    transition: border-color 0.2s ease;
-  }
-  
-  .input-group input:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-  }
-  
-  .booking-button {
-    padding: 16px;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s ease;
-  }
-  
-  .booking-button:hover:not(:disabled) {
-    background: #0056b3;
-  }
-  
-  .booking-button:disabled {
-    background: #6c757d;
-    cursor: not-allowed;
-  }
-  
-  .booking-note {
-    text-align: center;
-    color: #666;
-  }
+
   
   /* Image Modal */
   .image-modal {
@@ -553,9 +457,7 @@
       gap: 24px;
     }
     
-    .booking-panel {
-      position: static;
-    }
+
   }
   
   @media (max-width: 768px) {
@@ -638,38 +540,139 @@
     }
   }
 
-  /* Booking Summary */
-  .booking-summary {
-    background: #f8f9fa;
-    padding: 1rem;
-    border-radius: 8px;
-    margin: 1rem 0;
+
+
+  /* Fee Period Styling */
+  .fee-period {
+    color: #666;
+    font-weight: normal;
+    font-size: 0.9em;
+    margin-left: 4px;
+  }
+
+  /* Viewing Appointment Section */
+  .viewing-appointment-section {
+    margin-top: 1.5rem;
+  }
+
+  .viewing-appointment-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
     border: 1px solid #e9ecef;
   }
 
-  .summary-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #e9ecef;
+  .viewing-appointment-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
   }
 
-  .summary-row:last-child {
-    border-bottom: none;
+  .viewing-appointment-header h3 {
+    color: #333;
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
   }
 
-  .summary-row.total {
-    border-top: 2px solid #007bff;
-    margin-top: 0.5rem;
-    padding-top: 1rem;
-    color: #007bff;
-  }
-
-  .summary-row span {
+  .viewing-appointment-header p {
+    color: #666;
     font-size: 0.95rem;
+    margin: 0;
   }
 
-  .summary-row.total span {
-    font-size: 1.1rem;
+  .viewing-appointment-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .appointment-benefits {
+    display: flex;
+    justify-content: space-around;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .benefit-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+    text-align: center;
+  }
+
+  .benefit-item svg {
+    color: #28a745;
+    background: #f8f9fa;
+    padding: 0.5rem;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+  }
+
+  .benefit-item span {
+    font-size: 0.9rem;
+    color: #333;
+    font-weight: 500;
+  }
+
+  .viewing-appointment-button {
+    width: 100%;
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+  }
+
+  .viewing-appointment-button:hover {
+    background: linear-gradient(135deg, #218838, #1db584);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+  }
+
+  .viewing-appointment-button:active {
+    transform: translateY(0);
+  }
+
+  .appointment-note {
+    text-align: center;
+    color: #666;
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+
+  .appointment-note small {
+    display: block;
+  }
+
+  /* Mobile responsiveness for viewing appointment */
+  @media (max-width: 768px) {
+    .appointment-benefits {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .benefit-item {
+      flex-direction: row;
+      justify-content: flex-start;
+      text-align: left;
+    }
+
+    .benefit-item svg {
+      width: 32px;
+      height: 32px;
+      padding: 0.4rem;
+    }
+
+    .viewing-appointment-card {
+      padding: 1rem;
+    }
   }

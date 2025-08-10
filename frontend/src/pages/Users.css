@@ -200,24 +200,101 @@
 
 .user-actions {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
-.view-profile-btn {
-  background: #667eea;
+.role-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.role-selector label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.role-selector select {
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.role-selector select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.role-selector select:disabled {
+  background: #f9fafb;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.delete-user-btn {
+  padding: 0.5rem;
+  background: #ef4444;
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 500;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  align-self: flex-end;
+  max-width: fit-content;
 }
 
-.view-profile-btn:hover {
-  background: #5a6fd8;
-  transform: translateY(-1px);
+.delete-user-btn:hover {
+  background: #dc2626;
+}
+
+.user-role {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.role-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.role-badge.role-1 {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.role-badge.role-2 {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.user-full-name {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.user-email {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .no-users {

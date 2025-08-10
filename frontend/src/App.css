@@ -28,6 +28,49 @@ body {
   margin-top: 0;
 }
 
+/* Access Denied Styles */
+.access-denied-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  padding: 2rem;
+}
+
+.access-denied {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+.access-denied h2 {
+  color: #dc2626;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.access-denied p {
+  color: #7f1d1d;
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.access-denied .current-role {
+  font-weight: 500;
+}
+
+.access-denied .current-role span {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
@@ -41,13 +84,13 @@ p {
 
 /* Links */
 a {
-  color: #f39c12;
+  color: #2d7dd2;
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
 a:hover {
-  color: #e67e22;
+  color: #1a5fa0;
 }
 
 /* Buttons */
@@ -60,7 +103,7 @@ button {
 }
 
 button:focus {
-  outline: 2px solid #f39c12;
+  outline: 2px solid #2d7dd2;
   outline-offset: 2px;
 }
 
@@ -76,7 +119,7 @@ input, textarea, select {
 
 input:focus, textarea:focus, select:focus {
   outline: none;
-  border-color: #f39c12;
+  border-color: #2d7dd2;
 }
 
 /* Utility Classes */
@@ -88,7 +131,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 .loading-spinner {
-  color: #f39c12;
+  color: #2d7dd2;
   font-size: 1.1rem;
 }
 

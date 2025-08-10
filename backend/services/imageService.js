@@ -157,12 +157,13 @@ class ImageService {
 
   /**
    * Get room image with automatic optimization
-   * @param {string} branchId - Branch ID
-   * @param {string} roomType - Room type (Type1, Type3, Type4, Type5)
+   * @param {string} branchId - Branch ID (database BranchID)
+   * @param {string} roomType - Room type (Type1, Type3, Type4, Type5, Type7)
    * @param {string} imageIndex - Image index
    * @param {string} size - Size variant
    */
   async getRoomImage(branchId, roomType, imageIndex = '1', size = 'medium') {
+    // Map database branchId to actual folder structure
     const branchPath = `branch-${branchId}`;
     let originalPath;
 
@@ -182,6 +183,36 @@ class ImageService {
       }
       
       originalPath = path.join(__dirname, '../uploads/rooms', branchPath, roomType, fileName);
+    } else if (branchId === '4') {
+      // Young House 4: database branchId=4, uses branch-4 folder with Type12
+      const fileName = `branch4-${imageIndex}.jpg`; // Type12 uses branch4-x pattern
+      originalPath = path.join(__dirname, '../uploads/rooms', branchPath, 'Type12', fileName);
+    } else if (branchId === '9') {
+      // Young House 9: database branchId=9, uses branch-9 folder with Type10
+      const extension = (imageIndex === '8' || imageIndex === '9') ? 'JPG' : 'jpg'; // branch9-8.JPG and branch9-9.JPG are uppercase
+      const fileName = `branch9-${imageIndex}.${extension}`;
+      originalPath = path.join(__dirname, '../uploads/rooms', branchPath, 'Type10', fileName);
+    } else if (branchId === '10') {
+      // Young House 10: database branchId=10, uses branch-10 folder with Type11
+      let fileName;
+      if (imageIndex === '2') {
+        fileName = `branch10_${imageIndex}.jpg`; // Special case: branch10_2.jpg (underscore instead of dash)
+      } else {
+        fileName = `branch10-${imageIndex}.jpg`; // Normal pattern: branch10-x.jpg
+      }
+      originalPath = path.join(__dirname, '../uploads/rooms', branchPath, 'Type11', fileName);
+    } else if (branchId === '11') {
+      // Young House 11: database branchId=11, uses branch-11 folder with Type8
+      const fileName = `branch11-${imageIndex}.jpg`; // Type8 uses branch11-x pattern
+      originalPath = path.join(__dirname, '../uploads/rooms', branchPath, 'Type8', fileName);
+    } else if (branchId === '12') {
+      // Young House 12: database branchId=12, uses branch-12 folder with Type7
+      const fileName = `branch12-${imageIndex}.jpg`; // Type7 uses branch12-x pattern
+      originalPath = path.join(__dirname, '../uploads/rooms', branchPath, 'Type7', fileName);
+    } else if (branchId === '14') {
+      // Young House 14: database branchId=14, uses branch-14 folder with Type13
+      const fileName = `branch14-${imageIndex}.png`; // Type13 uses branch14-x.png pattern
+      originalPath = path.join(__dirname, '../uploads/rooms', branchPath, 'Type13', fileName);
     } else {
       // Young House 1: Only Type1 folder
       const extension = imageIndex === '9' ? 'JPG' : 'jpg'; // branch1-9.JPG is uppercase
